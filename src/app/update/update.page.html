@@ -1,0 +1,26 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>update to Firebase</ion-title>
+    <ion-buttons slot="start">
+      <ion-back-button></ion-back-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+
+  <form [formGroup]="frm_update" (ngSubmit)="submit(frm_update.value)" novalidate>
+
+    <ion-item>
+      <ion-input formControlName="groupcode" label="Floating label" 
+      labelPlacement="floating" placeholder="รหัสกลุ่ม6หลัก text"></ion-input>
+    </ion-item>
+    <ion-button expand="full" shape="round" type="submit" 
+      [disabled]="!frm_update.valid">
+      <ion-icon name="search-outline"></ion-icon>
+      Submit
+    </ion-button>
+
+  </form>
+  <!-- cpdata : {{ cpdata | json }} -->
+</ion-content>

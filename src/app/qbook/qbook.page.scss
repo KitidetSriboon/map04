@@ -1,0 +1,35 @@
+.category-select {
+    ion-button {
+        color: var(--ion-color-primary);
+        --background: transparent;
+        --background-activated: var(--ion-color-primary);
+    }
+
+    .selected {
+        font-weight: 600;
+        color: #fff;
+        --background: var(--ion-color-primary);
+    }
+}
+
+.textBold {
+    font-weight: 900;
+}
+
+.textBoldRed {
+    font-weight: 900;
+    color: red;
+}
+
+#map1 {
+    height: 400px;
+    width: 100%;
+}
+
+ion-toolbar {
+    --opacity: 0.5;
+}
+
+.padding-top {
+    padding-top: 1vw;
+}

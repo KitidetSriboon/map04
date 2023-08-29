@@ -1,0 +1,38 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/" [routerLink]="['/home']"></ion-back-button>
+    </ion-buttons>
+    <!-- <ion-buttons slot="start">
+      <ion-back-button default-href="/home"></ion-back-button>
+    </ion-buttons> -->
+    <!-- <ion-back-button slot="start"></ion-back-button> -->
+    <ion-title>gps</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+
+  <ul>
+    <li><img alt="" src="assets/icon/fm64.png" /></li>
+    <li><ion-text class="txLarger">{{ usertocp | number : '1.2-2' }} กม.</ion-text></li>
+    <li><img alt="" src="assets/icon/cpmap48.png" /></li>
+  </ul>
+
+  <!-- <ion-item>
+    <ion-avatar slot="start">
+      <img alt="" src="assets/icon/fm64.png" />
+    </ion-avatar>
+    <div class="headText">
+      {{ usertocp | number : '1.2-2' }} กม.
+    </div>
+    <ion-thumbnail slot="end">
+      <img alt="" src="assets/icon/cpmap48.png" />
+    </ion-thumbnail>
+  </ion-item> -->
+
+  <div class="container">
+    <div id="mapgps"></div>
+  </div>
+
+</ion-content>

@@ -1,0 +1,34 @@
+<ion-header [translucent]="true">
+  <ion-toolbar color="primary">
+    <ion-title>การจัดคิว ปี {{ yearTh }}</ion-title>
+    <ion-buttons slot="start">
+      <ion-back-button></ion-back-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-item>
+    <ion-icon name="information-circle-outline" slot="start"></ion-icon>
+    <ion-label>การใช้คิว 
+      <ion-text *ngIf="qsetup.qfree =='Y'" class="txBold1"> 
+        คิวเสรี
+      </ion-text>
+      <ion-text *ngIf="qsetup.qfree =='N'" class="txBold1"> 
+        คิวล็อค
+      </ion-text>  
+    </ion-label>
+  </ion-item>
+  <ion-item>
+    <ion-icon name="chevron-forward-outline" slot="start"></ion-icon>
+    <!-- <ion-icon name="information-circle-outline" slot="start"></ion-icon> -->
+    <ion-label>จองคิวแบบ
+      <ion-text *ngIf="qsetup.usedGps =='Y'" class="txBold1"> 
+        ในเขตแปลง
+      </ion-text>
+      <ion-text *ngIf="qsetup.usedGps =='N'" class="txBold1"> 
+        ที่ใดก็ได้
+      </ion-text>  
+    </ion-label>
+  </ion-item>
+</ion-content>

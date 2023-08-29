@@ -1,0 +1,7 @@
+{
+  "name": "map04",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}

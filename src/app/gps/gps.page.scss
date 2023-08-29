@@ -1,0 +1,52 @@
+#map {
+    height: 100%;
+    flex: 1;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+ul {
+    display: flex;
+    list-style: none;
+}
+
+li {
+    padding: 0px 0px;
+    // border: 1px solid black;
+    margin: auto auto;
+    position: relative;
+}
+
+// เส้นลูกศร
+li:not(:last-child):after {
+    content: '';
+    height: 1px;
+    background: black;
+    width: 50px;
+    position: absolute;
+    right: -50px;
+    top: 50%;
+}
+
+// ลูกศร
+li:not(:last-child):before {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 0;
+    top: 50%;
+    border-style: solid;
+    border-width: 7px 0 7px 20px;
+    border-color: transparent transparent transparent red;
+    right: -50px;
+    transform: translateY(-50%);
+}
+
+.txLarger {
+    font-size: larger;
+    font-weight: 900;
+}

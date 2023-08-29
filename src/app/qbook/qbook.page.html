@@ -1,0 +1,195 @@
+<script type="text/javascript" src="//maps.googleapis.com/maps/api/js?libraries=geometry&sensor=false"></script>
+
+<ion-header [translucent]="true">
+  <ion-toolbar color="warning">
+    <ion-title>
+      <ion-icon name="map"></ion-icon>
+      {{ cpselect!.intlandno }}
+    </ion-title>
+    <ion-buttons slot="start">
+      <ion-back-button></ion-back-button>
+    </ion-buttons>
+  </ion-toolbar>
+  <ion-item color="warning">
+    <ion-avatar slot="start">
+      <img src="assets/icon/fm64.png">
+    </ion-avatar>
+    <ion-label>
+      <h3 class="textBold">{{ cpselect.fmname }}</h3>
+      <p>{{ cpselect!.CaneTypeName }} พท. {{ cpselect!.landvalue }} ไร่</p>
+      <p>{{ cpselect!.itid }}</p>
+    </ion-label>
+  </ion-item>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+
+  <ion-card>
+    <!-- <img src="assets/img/cp01.png" alt="ion"> -->
+    <!-- <ion-card-header>
+      <ion-card-title>Header</ion-card-title>
+    </ion-card-header> -->
+    <ion-card-content class="bd-dash">
+
+      <ion-list>
+        <ion-item>
+          <ion-label>คิวได้รับ</ion-label>
+          <ion-badge color="primary">22</ion-badge>
+        </ion-item>
+        <ion-item>
+          <ion-label>ใช้ไป</ion-label>
+          <ion-badge color="warning">5</ion-badge>
+        </ion-item>
+        <ion-item>
+          <ion-label>คงเหลือ</ion-label>
+          <ion-badge color="danger">17</ion-badge>
+        </ion-item>
+      </ion-list>
+
+      <ion-item>
+        <ion-icon *ngIf="isInCp" name="checkmark-circle" slot="start"> </ion-icon>
+        <ion-icon *ngIf="!isInCp" color="danger" name="close-circle" slot="start"> </ion-icon>
+        <ion-label *ngIf="isInCp" color="primary"> ยู่ที่แปลงอ้อย {{ isInCp }} </ion-label>
+        <ion-label *ngIf="!isInCp" color="danger"> !!ไม่อยู่ที่แปลงอ้อย {{ isInCp }}</ion-label>
+      </ion-item>
+
+      <form *ngIf="canGetq" [formGroup]="frm_qbook" (ngSubmit)="submit(frm_qbook.value)" novalidate>
+
+        <ion-item>
+          <ion-input formControlName="ref_doc1" label="เลือกรอบ" labelPlacement="floating"></ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-input formControlName="q_id" label="เลือกคิว" labelPlacement="floating"></ion-input>
+        </ion-item>
+        <ion-item>
+          <ion-input formControlName="truck_no" label="เลือกรถบรรทุก" labelPlacement="floating"></ion-input>
+        </ion-item>
+        <ion-button expand="full" shape="round" type="submit" [disabled]="!frm_qbook.valid">
+          <ion-icon name="search-outline"></ion-icon>
+          จองคิว
+        </ion-button>
+
+      </form>
+
+    </ion-card-content>
+
+    <!-- <ion-footer>    </ion-footer> -->
+  </ion-card>
+
+  <ion-toolbar color="medium" class="padding-top">
+    <ion-buttons slot="secondary">
+      <ion-button (click)="loadmap()">
+        <ion-icon slot="icon-only" name="locate-outline"></ion-icon>
+      </ion-button>
+      <ion-button>
+        <ion-icon slot="icon-only" name="search"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-buttons slot="primary">
+      <ion-button>
+        <ion-icon slot="icon-only" ios="ellipsis-horizontal" md="ellipsis-vertical"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>แผนที่แปลง</ion-title>
+  </ion-toolbar>
+
+  <div id="map1"></div>
+
+  <ion-item>
+    <ion-label>
+      <h3>
+        <ion-icon name="megaphone-outline"></ion-icon>
+        การจองคิวอ้อย
+      </h3>
+      <p class="textBoldRed">{{ getQMethod }}</p>
+    </ion-label>
+  </ion-item>
+  <ion-item>
+    <p>...</p>
+  </ion-item>
+
+</ion-content>
+
+<!-- non used code  -->
+
+<!-- <ion-row>
+        <ion-col center text-center>
+          <ion-button [disabled]="!canGetq" expand="block">
+            <ion-icon name="create"></ion-icon>
+            <div>จองคิว</div>
+          </ion-button>
+        </ion-col>
+      </ion-row> -->
+
+<!-- <ion-item class="item-text-wrap">
+  <ion-icon name="alert-circle"></ion-icon>
+  <ion-label>ระยะห่างจากแปลงอ้อยต้องไม่เกิน {{ limit }} เมตร</ion-label>
+  <ion-button slot="end" size="small" (click)="close()">
+    <ion-icon name="exit-outline"></ion-icon> ปิด
+  </ion-button>
+</ion-item> -->
+
+<!-- <ion-row>
+    <ion-col>
+      <ion-button size="small" shape="round" slot="end" (click)="close()">
+        <ion-icon name="exit-outline"></ion-icon> ปิด
+      </ion-button>
+    </ion-col>
+  </ion-row> -->
+
+<!-- <ion-row>
+        <ion-col class="xc">
+          <ion-button id="cutN" fill="clear" (click)="requestPermissions()">
+            <ion-icon name="alarm"></ion-icon>
+            <div>Permit</div>
+          </ion-button>
+          <ion-button id="cutY" [fill]="ckfillY? 'clear':'solid'" (click)="getCurrentCoordinate()">
+            <ion-icon name="cut"></ion-icon>
+            <div>GPS</div>
+          </ion-button>
+        </ion-col>
+      </ion-row> -->
+
+<!-- watch / stop position -->
+<!-- <ion-row>
+        <ion-col class="xc">
+          <ion-button id="cutF" [fill]="ckfillF? 'clear':'solid'" (click)="watchPosition()">
+            <ion-icon name="checkmark-done"></ion-icon>
+            <div>Start</div>
+          </ion-button>
+          <ion-button id="cutF" [fill]="ckfillF? 'clear':'solid'" (click)="clearWatch()">
+            <ion-icon name="checkmark-done"></ion-icon>
+            <div>Stop</div>
+          </ion-button>
+        </ion-col>
+      </ion-row>       -->
+
+<!-- <ion-row>
+        <ion-col class="xc">
+          <ion-button id="cutN" fill="clear" (click)="upostocp_distance()">
+            <ion-icon name="alarm"></ion-icon>
+            <div>ระยะ</div>
+          </ion-button>
+          <ion-button id="cutY" [fill]="ckfillY? 'clear':'solid'" (click)="ckCut('Y')">
+            <ion-icon name="cut"></ion-icon>
+            <div>เริ่มตัด</div>
+          </ion-button>
+          <ion-button id="cutF" [fill]="ckfillF? 'clear':'solid'" (click)="ckCut('F')">
+            <ion-icon name="checkmark-done"></ion-icon>
+            <div>ตัดเสร็จ</div>
+          </ion-button>
+        </ion-col>
+      </ion-row> -->
+
+<!-- <ion-item>
+        <ion-icon name="locate" slot="start"></ion-icon>
+        <ion-label> ระยะห่างจากแปลง {{ uposdistanct | number: '1.2-2'}} ม. </ion-label>
+      </ion-item> -->
+<!-- <ion-item *ngIf="isNearHome">
+        <ion-icon name="locate" slot="start"></ion-icon>
+        <ion-label>test100ม. {{ isNearHome}} </ion-label>
+      </ion-item> -->
+<!-- <ion-item *ngIf="isNearCp">
+        <ion-icon name="locate" slot="start"></ion-icon>
+        <ion-label>ใกล้แปลง100ม. {{ isNearCp}} </ion-label>
+      </ion-item> -->
