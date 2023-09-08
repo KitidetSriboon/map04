@@ -43,6 +43,41 @@ export class FirebaseService {
     });
   }
 
+  // ข้อมูลแปลงจาก firebase by itit work but no key
+  getplantbyItid(year:string ,itid: string) {
+    return new Promise((res, rej) => {
+      this.firebase.object("inst1/tx/"+year+"/areas/" + itid)
+        .valueChanges()
+        .subscribe((res) => {
+        console.log('fb res:', res)
+      })
+    })
+  }
+
+  // ข้อมูลแปลงตาม itid on firebase work with key
+  getMapByitid(year: string, itid: string) {
+    return new Promise((res, rej) => {
+      this.firebase
+        .list('inst1/tx/' + year + '/areas/')
+        .query.orderByKey()
+        .equalTo(itid)
+        .once('value')
+        .then((snapshots) => {
+          let mapdt;
+          snapshots.forEach((snapshot) => {
+            mapdt = {
+              key: snapshot.key,
+              ...snapshot.val(),
+            };
+          });
+          res(mapdt);
+        })
+        .catch((e) => {
+          rej(e);
+        });
+    });
+  }
+
   // private handleError<T>(operation = 'operation', result?: T) {
   //   return (error: any): Observable<T> => {
   //     console.error(error);
@@ -58,20 +93,29 @@ export class FirebaseService {
   }
 
   // อัพเดต สถานะการตัด วันเริ่มตัด
-  async setCutstatus(year: string, key: any, cutstatus: string, cutstart: string) {
-    console.log('value :', year + key + cutstatus + cutstart)
-    const local = this.firebase.list('inst1/tx/' + year + '/areas/');
-    local.update(key, { cutstatus: cutstatus, cutstart: cutstart });
+  async setCutstatus(year: string, key: any, cutstatus: string, cutstart: string, cutstop: string, cutstill: string, dateupdate: string) {
+
+    console.log('value to firebase :', year + key + cutstatus + cutstart + cutstop + cutstill)
+
+    return new Promise((res, rej) => {
+      const local = this.firebase.list('inst1/tx/' + year + '/areas/' + key + '/');
+      local.update('fmdata', { cutstatus: cutstatus, cutstart: cutstart, cutstop: cutstop, cutstill: cutstill, dateupdate: dateupdate });
+      res(local)
+    }).catch((e) => { console.log('firebase error:', e) })
   }
 
   // สร้างชายใหม่
   async setCutstatus1(year: string, key: any, cutstatus: string, cutstart: string) {
-    return new Promise((res,rej) => {
+    return new Promise((res, rej) => {
       const local = this.firebase.list('inst1/tx/' + year + '/areas/' + key + '/');
       local.update('cutevent', { cutstatus: cutstatus, cutstart: cutstart });
       res(local)
-    }).catch((e)=>{ console.log('firebase error:' ,e) })
+    }).catch((e) => { console.log('firebase error:', e) })
 
   }
 
 }
+function getDatabase() {
+  throw new Error('Function not implemented.');
+}
+

@@ -41,7 +41,8 @@ export class HomePage {
   cpdatagroup?: any = [];
   subcpdatagroup!: Subscription;
   cpselect?: any = [];
-  yearCr = "2324"
+  yearCr = ""
+  yearData?:any = []
   groupcode?: string = ""
   frm_search: FormGroup;
   loader = new Loader({
@@ -87,37 +88,50 @@ export class HomePage {
   }
 
   ngOnInit() {
-    // this.getGeolocation()
+    this.getYear()
     this.loadmap()
   }
 
   ngAfterViewInit() {
+
+  }
+
+  getYear() {
+    this.brdsql.getYear().subscribe((res:any) => {
+      this.yearData = res.recordset[0]
+      this.yearCr = this.yearData.yearCr
+      // console.log('year res:' ,this.yearData)
+    })
   }
 
   // แผนที่แปลงอ้อยจาก firebase ตามกลุ่มตัด
   async getMapByGroup(f: any) {
 
-    // let gc = localStorage.getItem('groupcode')
-    // console.log('localstorage groupcode :' ,gc)
-    // if(gc) {
-    //   this.groupcode = gc
-    // } else {
-    //   this.groupcode = f.groupcode
-    //   localStorage.setItem('groupcode', f.groupcode)
-    // }
-    this.groupcode = f.groupcode
-    localStorage.setItem('groupcode', f.groupcode)
+    console.log('f: ',f)
+    let gc = ''
+
+    if(f.groupcode == 'x') {
+      let ckgroup:any = localStorage.getItem('groupcode')
+      this.groupcode = ckgroup
+      localStorage.setItem('groupcode', ckgroup)
+      gc = ckgroup
+    } else {
+      this.groupcode = f.groupcode
+      localStorage.setItem('groupcode', f.groupcode)
+      gc = f.groupcode
+    }
+
     this.mapGroup = [];
     this.cpdatagroup = []
     localStorage.removeItem('mapcpgroup')
     localStorage.removeItem('cpgroupsql')
 
     this.presentLoading('กำลังโหลดแผนที่แปลงอ้อยในกลุ่ม...')
-    await this.firebase.getMapByGroup(this.yearCr, f.groupcode!).then((result: any) => {
+    await this.firebase.getMapByGroup(this.yearCr, gc).then((result: any) => {
       this.mapGroup = result;
       if (result.length == 0) {
         console.log('!!ไม่พบข้อมูลแปลงอ้อยในกลุ่มจาก firebase')
-        this.presentAlert('แจ้งเตือน', '!!ไม่พบข้อมูลแผนที่แปลงอ้อยกลุ่ม..' + f.groupcode, 'กรุณาตรวจสอบรหัสกลุ่มตัดอีกครั้ง')
+        this.presentAlert('แจ้งเตือน', '!!ไม่พบข้อมูลแผนที่แปลงอ้อยกลุ่ม..' + gc, 'กรุณาตรวจสอบรหัสกลุ่มตัดอีกครั้ง')
       } else {
         let cp = JSON.stringify(this.mapGroup)
         localStorage.setItem('mapcpgroup', cp)
@@ -126,27 +140,19 @@ export class HomePage {
       }
     });
 
-    await this.brdsql.getCpinGroup(this.yearCr, f.groupcode).subscribe((data: any) => {
-      this.cpdatagroup = data.recordset
-      console.log('res cpgroupsql :', this.cpdatagroup);
-      let x = JSON.stringify(this.cpdatagroup)
-      localStorage.setItem('cpgroupsql', x)
+    await this.brdsql.getCpinGroup(this.yearCr, gc).subscribe((data: any) => {
+      // console.log('cpsql res: ',data)
+      if(data.recordset.length == 0) {
+        this.cpdatagroup = []
+        this.presentAlert('แจ้งเตือน', '!!ไม่พบข้อมูลแปลงอ้อยกลุ่ม..' + gc, 'กรุณาตรวจสอบรหัสกลุ่มตัดอีกครั้ง')
+      } else {
+        this.cpdatagroup = data.recordset
+        // console.log('res cpgroupsql :', this.cpdatagroup);
+        let x = JSON.stringify(this.cpdatagroup)
+        localStorage.setItem('cpgroupsql', x)
+      }
+
     });
-
-    // this.subcpdatagroup = await this.brdsql.getCpinGroup(this.yearCr, f.groupcode).subscribe({
-    //   next: (res: any) => {
-    //     if (res.length == 0) {
-    //       console.log('!!ไม่พบข้อมูลแปลงอ้อยในกลุ่มจาก brdsql')
-    //       console.error('!!ไม่พบข้อมูลแปลงอ้อยในกลุ่มจาก brdsql')
-    //     } else {
-    //       this.cpdatagroup = res.recordset;
-    //       // console.log('sql res: ', this.cpdatagroup)
-    //       let cpdata = JSON.stringify(this.cpdatagroup)
-    //       localStorage.setItem('cpgroupsql', cpdata)
-
-    //     }
-    //   }
-    // })
 
     this.closeLoading()
     setTimeout(() => {
@@ -159,7 +165,7 @@ export class HomePage {
     this.presentToast('กำลังเรียกพิกัดของคุณ...', 'locate')
     // this.geosv.getCurrentCoordinate()
     this.geosv.getCurrentCoordinate().then((res: any) => {
-      console.log('user position res :', res)
+      // console.log('user position res :', res)
       this.upos.lat = res.coords.latitude
       this.upos.lng = res.coords.longitude
     }).catch((e: any) => {
@@ -167,32 +173,6 @@ export class HomePage {
     }).finally(() => {
       // console.log('getGeolocation finished')
     })
-  }
-
-  async getCurrentCoordinate() {
-    if (!Capacitor.isPluginAvailable('Geolocation')) {
-      console.log('Plugin geolocation not available');
-      this.presentAlert('Error', 'Plugin geolocation not available', 'Plugin ใช้งานไม่ได้')
-      return;
-    }
-    let options = { maximumAge: 0, timeout: 10000, enableHighAccuracy: true };
-    await Geolocation.getCurrentPosition(options).then(data => {
-      this.coordinate = {
-        latitude: data.coords.latitude,
-        longitude: data.coords.longitude,
-        accuracy: data.coords.accuracy
-      };
-      this.upos.lat = data.coords.latitude
-      this.upos.lng = data.coords.longitude
-      console.log('coordinate work with :', this.coordinate);
-      this.presentToast('coordinate work with :' + this.coordinate, 'locate')
-      // this.loadmap()
-    }).catch(err => {
-      console.error(err);
-      this.presentAlert('Error', 'Error get postion :' + err, 'ตรวจสอบการเปิด GPS หรือ การอนุญาตให้แอพใช้ GPS')
-    }).finally(() => {
-      // this.loadmap()
-    });
   }
 
   // check gps permission
@@ -203,51 +183,13 @@ export class HomePage {
     })
   }
 
-  watchPosition = async () => {
-    await this.geosv.watchPosition().then((res: any) => {
-      this.upos = {
-        lat: res.coords.latitude,
-        lng: res.coords.longitude,
-      }
-      this.watchCoordinate = {
-        latitude: res.coords.latitude,
-        longitude: res.coords.longitude,
-      };
-    }).catch((e: any) => {
-      console.log('error watchposition :', e)
-    })
-    // try {
-    //   this.watchId = Geolocation.watchPosition({}, (position, err) => {
-    //     if (err) { return; }
-    //     this.lat = position.coords.latitude;
-    //     this.lng = position.coords.longitude
-    //     this.clearWatch();
-    //   })
-    // }
-    // catch (err) { console.log('err', err) }
-  }
-
-  // async watchPosition() {
-  //   await this.geosv.watchPosition().then((res: any) => {
-  //     console.log('WatchPosition :', res)
-
-  //   })
-  // }
-
-  async stopWatchPosition() {
-    console.log('stop watch position')
-    await this.geosv.clearWatch()
-    // await this.geosv.stopWatchPosition();
-  }
-
   async loadmap() {
 
     setTimeout(() => {
       this.getGeolocation()
-      // this.getCurrentCoordinate()
     }, 1000);
 
-    console.log('user location :', this.upos)
+    // console.log('user location :', this.upos)
 
     await this.loader.load().then(() => {
       // 1. Create Map
@@ -359,15 +301,24 @@ export class HomePage {
 
   }  // End loadmap
 
+  // ตรวจสอบแปลงกำลังตัดของกลุ่ม
+  async ckCpcutnow() {
+
+  }
+
   // โหลดแผนที่แปลงตามกลุ่ม
   async loadmapGroup() {
 
     setTimeout(() => {
-      this.getGeolocation()
-      // this.getCurrentCoordinate()
+      this.getGeolocation();
     }, 1000);
 
     let mapdata = this.mapGroup
+    let ck_cpcutnow = mapdata.fmdata
+    if(ck_cpcutnow) {
+      let mapcutnow:any = mapdata.filter((o:any) => o.fmdata.cutstatus === 'Y')
+      console.log('cp cuted now:' ,mapcutnow)
+    }
 
     await this.loader.load().then(() => {
       // main map
@@ -425,14 +376,17 @@ export class HomePage {
 
       // Add polygon
       for (let i = 0; i < mapdata.length; i++) {
-        const cutStatus = mapdata[i].cutstatus
-        let fillColor = "";
-        if (cutStatus == 'Y') {
-          fillColor = "#E5F708"
-        } else if (cutStatus == 'F') {
-          fillColor = "#09FD0C"
-        } else {
-          fillColor = "#7FB5FF"
+        let ckcut = mapdata[i].fmdata
+        let fillColor = "#7FB5FF";
+        if(ckcut) {
+          const cutStatus = mapdata[i].fmdata.cutstatus
+          if (cutStatus == 'Y') {
+            fillColor = "#E5F708"
+          } else if (cutStatus == 'F') {
+            fillColor = "#09FD0C"
+          } else {
+            fillColor = "#7FB5FF"
+          }
         }
 
         const triangleCoords = mapdata[i].coordinates;
@@ -638,7 +592,7 @@ export class HomePage {
   }
 
   routerSetting() {
-    this.router.navigateByUrl('/setting');
+    // this.router.navigateByUrl('/setting');
   }
 
   toFaqpage() {

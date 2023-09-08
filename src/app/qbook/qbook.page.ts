@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, NgZone } from '@angular/core';
-import { ModalController, LoadingController, ToastController, AlertController } from '@ionic/angular';
+import { ModalController, LoadingController, ToastController, AlertController, ActionSheetController } from '@ionic/angular';
 import { GeolocationService } from '../service/geolocation.service';
 import { GlobalConstants } from 'src/global-constants';
 import { Loader } from '@googlemaps/js-api-loader';
@@ -25,7 +25,9 @@ export class QbookPage implements OnInit {
 
   @Input() data: any;
 
+  groupcode = localStorage.getItem('groupcode')
   cpselect?: any = [];
+  cpFBSelect?: any = [];
   qsetup?: any = [];
   macpselect?: any = [];
   itid?: any = ""
@@ -43,12 +45,19 @@ export class QbookPage implements OnInit {
   uposdistanct = 0
   canGetq?: boolean;
   getQMethod?: string = ''
+  cpgetQcard?: any = []
   limit = 100
   loader = new Loader({
     apiKey: GlobalConstants.gmap.mapkey,
     version: GlobalConstants.gmap.version,
     libraries: ["places"],
   });
+  fmdata = {
+    "cutstatus": "",
+    "cutstart": "",
+    "cutstop": "",
+    "cutstill": ""
+  }
 
   frm_qbook!: FormGroup;
 
@@ -56,6 +65,7 @@ export class QbookPage implements OnInit {
     private modalCtrl: ModalController,
     private loadCtrl: LoadingController,
     private alertCtrl: AlertController,
+    private actCtr: ActionSheetController,
     private geosv: GeolocationService,
     private toastCtrl: ToastController,
     private fbservice: FirebaseService,
@@ -86,6 +96,12 @@ export class QbookPage implements OnInit {
     setTimeout(() => {
       this.getGeolocation()
     }, 3000);
+    setTimeout(() => {
+      this.getCpQcard();
+    }, 1000);
+    setTimeout(() => {
+      this.ckCutStatusinDB();
+    }, 1000);
   }
 
   ngAfterViewInit() {
@@ -93,7 +109,7 @@ export class QbookPage implements OnInit {
   }
 
   async getCpSelect(itidpara: string) {
-    console.log('ititpara :' ,itidpara)
+    console.log('ititpara :', itidpara)
     // let itidpara1 = itidpara
     // let itidpara1 = '-NH2nJEiWOmHR9WfIpp4'
     // console.log('itidpara fix :', itidpara1)
@@ -103,7 +119,7 @@ export class QbookPage implements OnInit {
     data1 = JSON.parse(data)
     this.cpselect = data1.filter((o: any) => o.itid === itidpara)
     this.cpselect = this.cpselect[0];
-    console.log('cpselect :' ,this.cpselect)
+    // console.log('cpselect :', this.cpselect)
   }
 
   // +++++++++++ code1 from https://edupala.com/ionic-capacitor-geolocation-for-getting-location-data/
@@ -120,7 +136,7 @@ export class QbookPage implements OnInit {
     this.presentToast('กำลังเรียกพิกัดของคุณ...', 'locate')
     // this.geosv.getCurrentCoordinate()
     this.geosv.getCurrentCoordinate().then((res: any) => {
-      console.log('user position res :', res)
+      // console.log('user position res :', res)
       this.upos.lat = res.coords.latitude
       this.upos.lng = res.coords.longitude
     }).catch((e: any) => {
@@ -217,8 +233,8 @@ export class QbookPage implements OnInit {
           this.presentToast('!! มีข้อผิดพลาดในการเรียกการตั้งค่าระบบคิวอ้อย กรุณาลองใหม่อีกครั้ง', 'alert')
         } else {
           this.qsetup = res.recordset[0];
-          console.log('qsetup :', this.qsetup)
-          console.log('toleranceInMeters :', this.qsetup.toleranceInMeters)
+          // console.log('qsetup :', this.qsetup)
+          // console.log('toleranceInMeters :', this.qsetup.toleranceInMeters)
         }
       }
     })
@@ -226,7 +242,7 @@ export class QbookPage implements OnInit {
 
   getMapdata() {
 
-    console.log('1.getMapdata')
+    // console.log('1.getMapdata')
 
     let mapFbdata: any = []
     mapFbdata = localStorage.getItem('mapcpgroup')
@@ -236,7 +252,7 @@ export class QbookPage implements OnInit {
     // กำหนดตำแหน่งแปลงอ้อย
     this.cppolygon = this.macpselect.coordinates
     this.cppos = this.macpselect.coordinatesCenter
-    console.log('cppos :', this.cppos)
+    // console.log('cppos :', this.cppos)
     // this.isWithinPoly(this.upos, this.cppolygon)
     // function isWithinPoly(x: any, y:any) {
     //   console.log('3.isWithinPoly')
@@ -253,7 +269,7 @@ export class QbookPage implements OnInit {
   // get user location
   async getGeolocation1() {
 
-    console.log('2.getGeolocation')
+    // console.log('2.getGeolocation')
     this.upos = { lat: 0, lng: 0 };
     this.presentToast('กำลังเรียกพิกัดของคุณ...', 'locate')
     // this.geosv.getCurrentCoordinate()
@@ -389,9 +405,9 @@ export class QbookPage implements OnInit {
   // คำนวณระยะห่างระหว่าง พิกัด GPS และ แปลงอ้อย แบบ Point to point
   upostocp_distance() {
 
-    console.log('4.upostocp_distance')
-    console.log('upos :', this.upos)
-    console.log('cppos :', this.cppos)
+    // console.log('4.upostocp_distance')
+    // console.log('upos :', this.upos)
+    // console.log('cppos :', this.cppos)
 
     let mk1: any, mk2: any
     mk1 = this.upos
@@ -468,8 +484,113 @@ export class QbookPage implements OnInit {
     console.log('cangetQ :', this.canGetq)
   }
 
-  setCutstatus() {
+  async ckCutStatusinDB() {
+    // check current cutstatus in db
+    await this.fbservice.getMapByitid(this.yearCr, this.itid)
+      .then((res: any) => {
+        // console.log('cpFBSelect: ', res)
+        this.cpFBSelect = res;
+        let cutstatusfb = this.cpFBSelect.fmdata
+        if (!cutstatusfb) {
+          // แปลงยังไม่บันทึกสถานะการตัดจากชร. ยังไม่มี fmdata child
+          this.fmdata.cutstatus = 'N'
+          this.fmdata.cutstart = ''
+          this.fmdata.cutstop = ''
+          this.fmdata.cutstill = ''
+        } else {
+          this.fmdata.cutstatus = cutstatusfb.cutstatus
+          this.fmdata.cutstart = cutstatusfb.cutstart
+          this.fmdata.cutstop = cutstatusfb.cutstop
+          this.fmdata.cutstill = cutstatusfb.cutstill
+        }
+        console.log('fmdat fb :', cutstatusfb)
+      })
+      .catch((e) => {
+        console.error(e)
+      })
+      .finally(() => {
 
+      })
+  }
+
+  // บันทึกสถานะการตัดจาก การเปิดแปลง
+  async setCutstatus(cutstatus: string) {
+
+    let cutstart = ""
+    let cutstop = ""
+    let cutstill = ""
+    let dateupdate = ""
+
+    switch (cutstatus) {
+      case 'Y':
+        cutstart = this.setDate()
+        cutstop = ""
+        cutstill = ""
+        dateupdate = this.setDate()
+        break;
+      case 'F':
+        cutstop = this.setDate()
+        cutstill = ""
+        dateupdate = this.setDate()
+        break;
+      case 'S':
+        cutstill = this.setDate()
+        cutstop = ""
+        cutstill = ""
+        dateupdate = this.setDate()
+        break;
+      default:
+        break;
+    }
+
+    // ตรวจสอบแปลงในกลุ่ม หากมีแปลงสถานะเป็น Y ให้แจ้งเตือนการปิดแปลงที่สถานะเป็น Y และยืนยันการเปิดแปลงปัจจุบัน
+    let lc_mapfb: any = []
+    let ckplotY = false;
+    lc_mapfb = localStorage.getItem('mapcpgroup')
+    lc_mapfb = JSON.parse(lc_mapfb)
+    // แปลงที่มีการบันทึกกิจกรรมจากชร.แล้ว
+    lc_mapfb = lc_mapfb.filter((el: any) => el.fmdata)
+    console.log('filter fmdata :', lc_mapfb)
+    if (lc_mapfb.length === 0) {
+      console.log('ยังไม่มีแปลงบันทึกกิจกรรมจากชาวไร่ ในกลุ่ม')
+      ckplotY = false;
+    } else {
+      lc_mapfb = lc_mapfb.filter((el: any) => el.fmdata.cutstatus === 'Y')
+      if (lc_mapfb.length === 0) {
+        console.log('ยังไม่มีแปลง cutstatus=Y')
+        ckplotY = false;
+      } else {
+        // พบแปลงสถานะการตัดเป็น Y แจ้งให้ทราบเพื่อจะปิดแปลงนั้นๆ ก่อน เปิดแปลงปัจจุบัน
+        console.log('พบแปลงสถานะตัด=Y', lc_mapfb)
+        ckplotY = true;
+        this.showPlotDesc(lc_mapfb)
+      }
+    }
+
+    // อัพเดตสถานะการตัดไป firebase child fmdata
+    // if (ckplotY == false) {
+    //   await this.fbservice.setCutstatus(this.yearCr, this.itid, cutstatus, cutstart, cutstop, cutstill, dateupdate)
+    //     .then((res: any) => {
+    //       console.log('firebase res:', res)
+    //     })
+    // }
+    //เช็คที่ firebase เพื่ออัพเดตสถานะการตัด เพื่อให้ปุ่มสถานะการตัด ทำงานที่อัพเดต
+    // this.ckCutStatusinDB()
+
+  }
+
+  setDate(): string {
+    const today = new Date();
+    const yyyy = today.getFullYear();
+    let mm: any = today.getMonth() + 1; // Months start at 0!
+    let mm1: any = today.getMonth() + 1; // Months start at 0!
+    let dd: any = today.getDate();
+    if (dd < 10) dd = '0' + dd;
+    if (mm < 10) mm = '0' + mm;
+    let timex = today.getHours() + ':' + today.getMinutes() + ':' + today.getSeconds()
+    const formattedToday = yyyy + '-' + mm + '-' + dd + ' ' + timex;
+    return formattedToday
+    // console.log('data to fb:', formattedToday )
   }
 
   ckCut(cutstatus: string) {
@@ -502,6 +623,14 @@ export class QbookPage implements OnInit {
         this.cutStatus = 'N'
         break;
     }
+  }
+
+  // การใช้ใบคิวของแปลงอ้อย
+  getCpQcard() {
+    this.brdservice.getCpQcard(this.itid).subscribe((res: any) => {
+      this.cpgetQcard = res.recordset[0]
+      // console.log('cpgetQcard:', this.cpgetQcard)
+    })
   }
 
   submit(f: any) {
@@ -540,6 +669,52 @@ export class QbookPage implements OnInit {
       cssClass: 'custom-alert',
     });
     await alert.present();
+  }
+
+  // แจ้งเตือนว่ามีแปลงที่สถานะตัด Y ในกลุ่ม เพื่อปิดแปลงนั้นก่อน จึงจะเปิดแปลงที่เลือกได้
+  async showPlotDesc(data: any) {
+    console.log('cpmap data: ', data)
+    let dt = data[0]
+    console.log('cpmap data[0]: ', dt)
+    if (dt !== undefined) {
+      const actionSheet = await this.actCtr.create({
+        header: 'พบว่าแปลง ' + dt.bnm_profile.name + ' ' + dt.bnm_profile.surname,
+        subHeader: `${dt.DetailPlant.CaneTypeName} พท. ${dt.DetailPlant.AreaPre} ไร่ อยู่ระหว่างตัด หากเปิดแปลงใหม่ จะทำการปิดแปลงนี้ โดยอัตโนมัติ`,
+        cssClass: 'my-custom-class',
+        buttons: [
+          {
+            text: 'ตกลง/ปิดแปลง',
+            role: 'destructive',
+            data: {
+              action: 'add',
+            },
+            handler: () => {
+              this.actionsheetOK();
+            }
+          },
+          // {
+          //   text: 'Share',
+          //   data: {
+          //     action: 'share',
+          //   },
+          // },
+          {
+            text: 'ยกเลิก',
+            role: 'cancel',
+            data: {
+              action: 'cancel',
+            },
+          },
+        ],
+      });
+      actionSheet.present();
+    } else {
+      this.presentAlert('แจ้งเตือน', 'ข้อมูลแปลงที่สถานะตัดY', '!!ไม่มีข้อมูลเข้ามา')
+    }
+  }
+
+  actionsheetOK() {
+    this.presentAlert('เลือก', 'ตกลง', 'ทดสอบ')
   }
 
 }

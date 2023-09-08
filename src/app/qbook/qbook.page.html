@@ -17,39 +17,24 @@
     <ion-label>
       <h3 class="textBold">{{ cpselect.fmname }}</h3>
       <p>{{ cpselect!.CaneTypeName }} พท. {{ cpselect!.landvalue }} ไร่</p>
-      <p>{{ cpselect!.itid }}</p>
+      <!-- <p>{{ cpselect!.itid }}</p> -->
     </ion-label>
   </ion-item>
 </ion-header>
 
 <ion-content [fullscreen]="true">
 
-  <ion-card>
+  <ion-card class="divMg-5">
     <!-- <img src="assets/img/cp01.png" alt="ion"> -->
     <!-- <ion-card-header>
       <ion-card-title>Header</ion-card-title>
     </ion-card-header> -->
     <ion-card-content class="bd-dash">
 
-      <ion-list>
-        <ion-item>
-          <ion-label>คิวได้รับ</ion-label>
-          <ion-badge color="primary">22</ion-badge>
-        </ion-item>
-        <ion-item>
-          <ion-label>ใช้ไป</ion-label>
-          <ion-badge color="warning">5</ion-badge>
-        </ion-item>
-        <ion-item>
-          <ion-label>คงเหลือ</ion-label>
-          <ion-badge color="danger">17</ion-badge>
-        </ion-item>
-      </ion-list>
-
-      <ion-item>
+      <ion-item class="ion-text-center">
         <ion-icon *ngIf="isInCp" name="checkmark-circle" slot="start"> </ion-icon>
         <ion-icon *ngIf="!isInCp" color="danger" name="close-circle" slot="start"> </ion-icon>
-        <ion-label *ngIf="isInCp" color="primary"> ยู่ที่แปลงอ้อย {{ isInCp }} </ion-label>
+        <ion-label *ngIf="isInCp" color="primary"> อยู่ที่แปลงอ้อย {{ isInCp }} </ion-label>
         <ion-label *ngIf="!isInCp" color="danger"> !!ไม่อยู่ที่แปลงอ้อย {{ isInCp }}</ion-label>
       </ion-item>
 
@@ -75,6 +60,89 @@
 
     <!-- <ion-footer>    </ion-footer> -->
   </ion-card>
+
+  <ion-grid *ngIf="!isInCp" class="divMg-5 divPadding-5 w3-center" style="background-color: orange;">
+    <ion-row>
+      <ion-col class="divPadding-5">
+        <ion-icon name="cut-outline"></ion-icon> การตัดอ้อย
+        <ion-chip color="secondary" *ngIf="fmdata.cutstatus === 'N'">
+          <ion-icon name="close"></ion-icon>
+          <ion-label>ยังไม่ตัด</ion-label>
+        </ion-chip>
+        <ion-chip color="primary" *ngIf="fmdata.cutstatus === 'Y'">
+          <ion-icon name="walk"></ion-icon>
+          <ion-label>กำลังตัด</ion-label>
+        </ion-chip>
+        <ion-chip color="success" *ngIf="fmdata.cutstatus === 'F'">
+          <ion-icon name="accessibility"></ion-icon>
+          <ion-label>ตัดเสร็จแล้ว</ion-label>
+        </ion-chip>
+        <ion-chip color="danger" *ngIf="fmdata.cutstatus === 'S'">
+          <ion-icon name="time"></ion-icon>
+          <ion-label>หยุดตัดชั่วคราว</ion-label>
+        </ion-chip>
+      </ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col>
+        <ion-tab-button [disabled]="fmdata.cutstatus !== 'N'" 
+          (click)="setCutstatus('Y')" size="small" color="light">
+          <ion-icon name="walk-outline"></ion-icon>
+          <ion-label>เปิดแปลง</ion-label>
+        </ion-tab-button>
+      </ion-col>
+      <ion-col>
+        <ion-tab-button [disabled]="fmdata.cutstatus === 'F'" 
+          (click)="setCutstatus('F')" size="small" color="light">
+          <ion-icon name="thumbs-up-outline"></ion-icon>
+          <ion-label>ตัดเสร็จ</ion-label>
+        </ion-tab-button>
+      </ion-col>
+      <ion-col>
+        <ion-tab-button [disabled]="fmdata.cutstatus === 'F' || fmdata.cutstatus === 'N'" 
+          (click)="setCutstatus('S')"
+          size="small" color="light">
+          <ion-icon name="stop-circle-outline"></ion-icon>
+          <ion-label>หยุดชั่วคราว</ion-label>
+        </ion-tab-button>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+
+  <ion-grid class="divMg-5 divPadding-5 w3-center bd-dash-blue">
+    <div style="margin-left: 3px; margin-right: 3px;">
+      <ion-row class="w3-gray">
+        <ion-col>
+          <ion-icon name="cellular-outline"></ion-icon> อ้อยในแปลง
+        </ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col class="w3-blue divPadding-5">ประเมิน</ion-col>
+        <ion-col class="w3-light-blue divPadding-5">เข้าหีบ</ion-col>
+        <ion-col class="w3-lime divPadding-5">คงเหลือ</ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col class="w3-blue divPadding-5">{{ cpgetQcard.Assess}}</ion-col>
+        <ion-col class="w3-light-blue divPadding-5">{{ cpgetQcard.canein}}</ion-col>
+        <ion-col class="w3-lime divPadding-5">{{ cpgetQcard.caneleft }}</ion-col>
+      </ion-row>
+      <ion-row class="w3-gray">
+        <ion-col>
+          <ion-icon name="barcode-outline"></ion-icon> ใบคิว
+        </ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col class="w3-blue divPadding-5">ได้รับ</ion-col>
+        <ion-col class="w3-light-blue divPadding-5">ใช้ไป</ion-col>
+        <ion-col class="w3-lime divPadding-5">คงเหลือ</ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col class="w3-blue divPadding-5">{{ cpgetQcard.cntq_get}}</ion-col>
+        <ion-col class="w3-light-blue divPadding-5">{{ cpgetQcard.cntq_used }}</ion-col>
+        <ion-col class="w3-lime divPadding-5">{{ cpgetQcard.cntq_left }}</ion-col>
+      </ion-row>
+    </div>
+  </ion-grid>
 
   <ion-toolbar color="medium" class="padding-top">
     <ion-buttons slot="secondary">

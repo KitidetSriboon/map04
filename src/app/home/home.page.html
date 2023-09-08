@@ -3,7 +3,7 @@
   <ion-menu side="start" menuId="main" contentId="main-content">
     <ion-header>
       <ion-toolbar color="secondary">
-        <ion-title>
+        <ion-title style="margin-top: 10px;margin-left: 10px">
           <ion-icon name="map-outline"></ion-icon>
           จองคิว Testmode
         </ion-title>
@@ -29,55 +29,20 @@
 
       </form>
 
-      <!-- <ion-button (click)="userLocation()" expand="block" shape="round">
-        <ion-icon name="locate-outline"></ion-icon>ตำแหน่งของคุณ 
-      </ion-button>
-    
-      <ion-button (click)="showaction()" expand="block" shape="round">
-        <ion-icon name="locate-outline"></ion-icon>Action Sheet 
-      </ion-button> 
-
-      <ion-button (click)="loadMap2()" expand="block" shape="round">
-        <ion-icon name="map-outline"></ion-icon>Show map2 
-      </ion-button> -->
-
     </ion-content>
-
-    <!-- <ion-tabs>
-      <ion-tab-bar slot="bottom">
-        <ion-tab-button tab="home">
-          <ion-icon name="play-circle"></ion-icon>
-          อัพเดต
-        </ion-tab-button>
-        <ion-tab-button tab="radio">
-          <ion-icon name="radio"></ion-icon>
-          Radio
-        </ion-tab-button>
-        <ion-tab-button tab="library">
-          <ion-icon name="library"></ion-icon>
-          Library
-        </ion-tab-button>
-        <ion-tab-button tab="search">
-          <ion-icon name="search"></ion-icon>
-          Search
-        </ion-tab-button>
-      </ion-tab-bar>
-    </ion-tabs> -->
 
   </ion-menu>
 
   <!-- Right-Side Menu -->
   <ion-menu class="small-menu" side="end" menuId="user" content-id="main-content">
-    <ion-header>
-      <ion-toolbar color="secondary">
-        <ion-title>
-          More menu
-        </ion-title>
-        <ion-item color="secondary" line="non" class="divPadding-5">
+    <ion-header class="ion-text-center">
+      <ion-toolbar class="divPadding-10" color="secondary">
+        <ion-title > การตั้งค่า  </ion-title>
+        <ion-item color="secondary" line="non" class="divCenter">
           <ion-avatar slot="start">
-            <img alt="Silhouette of a person's head" src="https://ionicframework.com/docs/img/demos/avatar.svg" />
+            <img alt="brr" src="assets/icon/fm64.png" />
           </ion-avatar>
-          <ion-label> กลุ่ม {{ groupcode }} </ion-label>
+          <ion-label class=""> กลุ่ม {{ groupcode }} </ion-label>
         </ion-item>
       </ion-toolbar>
     </ion-header>
@@ -99,14 +64,14 @@
             <ion-item>
               <ion-label> {{ gpsstatus }} </ion-label>
             </ion-item>
-            <ion-button fill="clear" (click)="watchPosition()">
+            <!-- <ion-button fill="clear" (click)="watchPosition()">
               <ion-icon name="play-outline"></ion-icon>
               <div>เริ่มแทร็ค</div>
             </ion-button>
             <ion-button fill="clear" (click)="stopWatchPosition()">
               <ion-icon name="stop-outline"></ion-icon>
               <div>หยุดแทร็ค</div>
-            </ion-button>
+            </ion-button> -->
           </div>
         </ion-accordion>
         <ion-accordion value="second">
@@ -117,7 +82,7 @@
           <div class="ion-padding" slot="content">
             <ion-item lines="none" button (click)="routerSetting()">
               <ion-icon name="settings" slot="start"></ion-icon>
-              <ion-label>Setting</ion-label>
+              <ion-label>อยู่ระหว่างพัฒนา</ion-label>
               <!-- <ion-button fill="clear" color="primary" (click)="routerSetting()">Setting</ion-button> -->
             </ion-item>
           </div>
@@ -153,13 +118,23 @@
         <ion-buttons slot="start">
           <ion-menu-button menuId="main"></ion-menu-button>
         </ion-buttons>
-        <ion-title>จองคิว</ion-title>
-        <ion-button slot="end" (click)="loadmapGroup()">
+        <ion-title>จองคิว {{ yearData.yearDesc }}</ion-title>
+        <ion-buttons slot="primary">
+          <ion-button (click)="getMapByGroup({'groupcode': 'x' })">
+            <ion-icon slot="icon-only" name="reload-outline"></ion-icon>
+          </ion-button>
+        </ion-buttons>
+        <ion-buttons slot="primary">
+          <ion-button (click)="openUserMenu()">
+            <ion-icon slot="icon-only" name="ellipsis-vertical-outline"></ion-icon>
+          </ion-button>
+        </ion-buttons>
+        <!-- <ion-button (click)="loadmapGroup()">
           <ion-icon name="reload-circle" slot="icon-only"></ion-icon>
         </ion-button>
-        <ion-button slot="end" (click)="openUserMenu()">
-          <ion-icon name="grid-outline" slot="icon-only"></ion-icon>
-        </ion-button>
+        <ion-button (click)="openUserMenu()">
+          <ion-icon name="ellipsis-vertical-outline" slot="icon-only"></ion-icon>
+        </ion-button> -->
       </ion-toolbar>
     </ion-header>
 
