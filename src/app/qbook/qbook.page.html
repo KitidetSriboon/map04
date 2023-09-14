@@ -25,10 +25,7 @@
 <ion-content [fullscreen]="true">
 
   <ion-card class="divMg-5">
-    <!-- <img src="assets/img/cp01.png" alt="ion"> -->
-    <!-- <ion-card-header>
-      <ion-card-title>Header</ion-card-title>
-    </ion-card-header> -->
+
     <ion-card-content class="bd-dash">
 
       <ion-item class="ion-text-center">
@@ -38,76 +35,69 @@
         <ion-label *ngIf="!isInCp" color="danger"> !!ไม่อยู่ที่แปลงอ้อย {{ isInCp }}</ion-label>
       </ion-item>
 
-      <form *ngIf="canGetq" [formGroup]="frm_qbook" (ngSubmit)="submit(frm_qbook.value)" novalidate>
-
-        <ion-item>
-          <ion-input formControlName="ref_doc1" label="เลือกรอบ" labelPlacement="floating"></ion-input>
-        </ion-item>
-        <ion-item>
-          <ion-input formControlName="q_id" label="เลือกคิว" labelPlacement="floating"></ion-input>
-        </ion-item>
-        <ion-item>
-          <ion-input formControlName="truck_no" label="เลือกรถบรรทุก" labelPlacement="floating"></ion-input>
-        </ion-item>
-        <ion-button expand="full" shape="round" type="submit" [disabled]="!frm_qbook.valid">
-          <ion-icon name="search-outline"></ion-icon>
-          จองคิว
-        </ion-button>
-
-      </form>
-
     </ion-card-content>
+
+    <ion-grid class="divMg-5 divPadding-5 w3-center" style="background-color: orange;">
+      <ion-row>
+        <ion-col class="divPadding-5">
+          <ion-icon name="cut-outline"></ion-icon> การตัดอ้อย
+          <ion-chip color="secondary" *ngIf="fmdata.cutstatus === 'N'">
+            <ion-icon name="close"></ion-icon>
+            <ion-label>ยังไม่ตัด</ion-label>
+          </ion-chip>
+          <ion-chip color="primary" *ngIf="fmdata.cutstatus === 'Y'">
+            <ion-icon name="walk"></ion-icon>
+            <ion-label>กำลังตัด</ion-label>
+          </ion-chip>
+          <ion-chip color="success" *ngIf="fmdata.cutstatus === 'F'">
+            <ion-icon name="accessibility"></ion-icon>
+            <ion-label>ตัดเสร็จแล้ว</ion-label>
+          </ion-chip>
+          <ion-chip color="danger" *ngIf="fmdata.cutstatus === 'S'">
+            <ion-icon name="time"></ion-icon>
+            <ion-label>หยุดตัดชั่วคราว</ion-label>
+          </ion-chip>
+        </ion-col>
+      </ion-row>
+      <ion-row *ngIf="isInCp">
+        <ion-col>
+          <ion-tab-button [disabled]="fmdata.cutstatus !== 'N'" (click)="setCutstatus('Y','')" size="small"
+            color="light">
+            <ion-icon name="walk-outline"></ion-icon>
+            <ion-label>เปิดแปลง</ion-label>
+          </ion-tab-button>
+        </ion-col>
+        <ion-col>
+          <ion-tab-button [disabled]="fmdata.cutstatus === 'F' || fmdata.cutstatus === 'N'"
+            (click)=" setCutstatus('F','')" size="small" color="light">
+            <ion-icon name="thumbs-up-outline"></ion-icon>
+            <ion-label>ตัดเสร็จ</ion-label>
+          </ion-tab-button>
+        </ion-col>
+        <ion-col>
+          <ion-tab-button id="present-alert" [disabled]="fmdata.cutstatus !== 'Y'" size="small" color="light">
+            <ion-icon name="stop-circle-outline"></ion-icon>
+            <ion-label>หยุดชั่วคราว</ion-label>
+          </ion-tab-button>
+          <ion-alert trigger="present-alert" header="หยุดตัดชั่วคราวเนื่องจาก..." [buttons]="alertButtons"
+            (didDismiss)="setResult($event)" [inputs]="alertInputs">
+          </ion-alert>
+        </ion-col>
+      </ion-row>
+      <ion-button *ngIf="canGetq && (fmdata.cutstatus === 'Y' || fmdata.cutstatus === 'S')" (click)="toGetqcard(itid)"
+        class="divMg-5" shape="round">
+        <ion-icon name="barcode-outline"></ion-icon> จองคิว
+      </ion-button>
+      <ion-button [disabled]="testmode" id="alCtest" class="divMg-5" shape="round" size="small">
+        <ion-icon name="close-outline"></ion-icon> ยกเลิก(Test mode)
+      </ion-button>
+      <ion-alert trigger="alCtest" header="ยกเลิกข้อมูลการตัดแปลงนี้!" [buttons]="altCancletest"
+        (didDismiss)="setResult($event)">
+      </ion-alert>
+    </ion-grid>
 
     <!-- <ion-footer>    </ion-footer> -->
   </ion-card>
-
-  <ion-grid *ngIf="!isInCp" class="divMg-5 divPadding-5 w3-center" style="background-color: orange;">
-    <ion-row>
-      <ion-col class="divPadding-5">
-        <ion-icon name="cut-outline"></ion-icon> การตัดอ้อย
-        <ion-chip color="secondary" *ngIf="fmdata.cutstatus === 'N'">
-          <ion-icon name="close"></ion-icon>
-          <ion-label>ยังไม่ตัด</ion-label>
-        </ion-chip>
-        <ion-chip color="primary" *ngIf="fmdata.cutstatus === 'Y'">
-          <ion-icon name="walk"></ion-icon>
-          <ion-label>กำลังตัด</ion-label>
-        </ion-chip>
-        <ion-chip color="success" *ngIf="fmdata.cutstatus === 'F'">
-          <ion-icon name="accessibility"></ion-icon>
-          <ion-label>ตัดเสร็จแล้ว</ion-label>
-        </ion-chip>
-        <ion-chip color="danger" *ngIf="fmdata.cutstatus === 'S'">
-          <ion-icon name="time"></ion-icon>
-          <ion-label>หยุดตัดชั่วคราว</ion-label>
-        </ion-chip>
-      </ion-col>
-    </ion-row>
-    <ion-row>
-      <ion-col>
-        <ion-tab-button [disabled]="fmdata.cutstatus !== 'N'" 
-          (click)="setCutstatus('Y')" size="small" color="light">
-          <ion-icon name="walk-outline"></ion-icon>
-          <ion-label>เปิดแปลง</ion-label>
-        </ion-tab-button>
-      </ion-col>
-      <ion-col>
-        <ion-tab-button [disabled]="fmdata.cutstatus === 'F'" 
-          (click)="setCutstatus('F')" size="small" color="light">
-          <ion-icon name="thumbs-up-outline"></ion-icon>
-          <ion-label>ตัดเสร็จ</ion-label>
-        </ion-tab-button>
-      </ion-col>
-      <ion-col>
-        <ion-tab-button [disabled]="fmdata.cutstatus === 'F' || fmdata.cutstatus === 'N'" 
-          (click)="setCutstatus('S')"
-          size="small" color="light">
-          <ion-icon name="stop-circle-outline"></ion-icon>
-          <ion-label>หยุดชั่วคราว</ion-label>
-        </ion-tab-button>
-      </ion-col>
-    </ion-row>
-  </ion-grid>
 
   <ion-grid class="divMg-5 divPadding-5 w3-center bd-dash-blue">
     <div style="margin-left: 3px; margin-right: 3px;">

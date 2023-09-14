@@ -1,0 +1,57 @@
+<ion-header [translucent]="true">
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/qbook"></ion-back-button>
+    </ion-buttons>
+    <ion-title>จองคิวอ้อย</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+
+  <!-- <div class="w3-panel w3-pale-green w3-bottombar w3-border-green w3-border">
+    <p class="txtTitle">{{ cpQcard.fmname }}</p>
+    <p>แปลง {{ cpQcard.intlandno }} {{ cpQcard.canetypename }} {{ cpQcard.landvalue }} ไร่</p>
+    <p>ประเมิน {{ cpQcard.Assess | number }} เข้าหีบ {{ cpQcard.canein | number }} คงเหลือ {{
+        cpQcard.caneleft | number }} ตัน</p>
+  </div>
+
+  <div class="w3-row">
+    <div class="w3-col s4 w3-green w3-center">
+      <p>คิวได้รับ {{ cpQcard.cntq_get}}</p>
+    </div>
+    <div class="w3-col s4 w3-dark-grey w3-center">
+      <p>ใช้ไป {{ cpQcard.cntq_used }}</p>
+    </div>
+    <div class="w3-col s4 w3-red w3-center">
+      <p>คงเหลือ {{ cpQcard.cntq_left}}</p>
+    </div>
+  </div>
+
+  <ion-button class="divMg-5" *ngIf="cpQcard.cutstatus =='N'" color="danger" expand="full">แปลงนี้ตัดเสร็จแล้ว
+  </ion-button>
+  <ion-button *ngIf="cpQcard.cntq_left == 0" color="danger" expand="full">ใช้ใบคิวหมดแล้ว </ion-button> -->
+
+  <!-- <form [formGroup]="frm_qbook" (ngSubmit)="submit(frm_qbook.value)" novalidate>
+    <ion-item>
+      <ion-input formControlName="ref_doc1" label="เลือกรอบ" labelPlacement="floating"></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-input type="number" formControlName="q_id" label="เลือกคิว" labelPlacement="floating"></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-input formControlName="truck_no" label="เลือกรถบรรทุก" labelPlacement="floating"></ion-input>
+    </ion-item>
+    <ion-button expand="full" shape="round" type="submit" [disabled]="!frm_qbook.valid">
+      <ion-icon name="search-outline"></ion-icon>
+      จองคิว
+    </ion-button>
+  </form> -->
+
+  <ion-item>
+    <ion-button (click)="close()" class="divMg-10" slot="end">
+      <ion-icon name="exit-outline"></ion-icon> ปิด
+    </ion-button>
+  </ion-item>
+
+</ion-content>

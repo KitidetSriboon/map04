@@ -42,7 +42,7 @@ export class HomePage {
   subcpdatagroup!: Subscription;
   cpselect?: any = [];
   yearCr = ""
-  yearData?:any = []
+  yearData?: any = []
   groupcode?: string = ""
   frm_search: FormGroup;
   loader = new Loader({
@@ -50,7 +50,6 @@ export class HomePage {
     version: GlobalConstants.gmap.version,
     libraries: ["places"],
   });
-  choice = 'Credit Card';
   itid?: string = ""
   isincaneplot?: boolean;
   testisincaneplot?: boolean;
@@ -62,6 +61,8 @@ export class HomePage {
   coordinate: any;
   watchCoordinate: any;
   gpsstatus?: boolean
+  isModalOpen = false;
+  headGroupData?: any = [];
 
   constructor(
     private firebase: FirebaseService,
@@ -97,7 +98,7 @@ export class HomePage {
   }
 
   getYear() {
-    this.brdsql.getYear().subscribe((res:any) => {
+    this.brdsql.getYear().subscribe((res: any) => {
       this.yearData = res.recordset[0]
       this.yearCr = this.yearData.yearCr
       // console.log('year res:' ,this.yearData)
@@ -107,11 +108,11 @@ export class HomePage {
   // แผนที่แปลงอ้อยจาก firebase ตามกลุ่มตัด
   async getMapByGroup(f: any) {
 
-    console.log('f: ',f)
+    console.log('f: ', f)
     let gc = ''
 
-    if(f.groupcode == 'x') {
-      let ckgroup:any = localStorage.getItem('groupcode')
+    if (f.groupcode == 'x') {
+      let ckgroup: any = localStorage.getItem('groupcode')
       this.groupcode = ckgroup
       localStorage.setItem('groupcode', ckgroup)
       gc = ckgroup
@@ -142,7 +143,7 @@ export class HomePage {
 
     await this.brdsql.getCpinGroup(this.yearCr, gc).subscribe((data: any) => {
       // console.log('cpsql res: ',data)
-      if(data.recordset.length == 0) {
+      if (data.recordset.length == 0) {
         this.cpdatagroup = []
         this.presentAlert('แจ้งเตือน', '!!ไม่พบข้อมูลแปลงอ้อยกลุ่ม..' + gc, 'กรุณาตรวจสอบรหัสกลุ่มตัดอีกครั้ง')
       } else {
@@ -234,8 +235,8 @@ export class HomePage {
         position: this.upos,
         map,
         label: "",
-        icon: 'assets/icon/truck48.png',
-        animation: google.maps.Animation.BOUNCE,
+        icon: 'assets/icon/fm64.png',
+        // animation: google.maps.Animation.BOUNCE,
       });
 
       // 3. Create circle
@@ -315,9 +316,9 @@ export class HomePage {
 
     let mapdata = this.mapGroup
     let ck_cpcutnow = mapdata.fmdata
-    if(ck_cpcutnow) {
-      let mapcutnow:any = mapdata.filter((o:any) => o.fmdata.cutstatus === 'Y')
-      console.log('cp cuted now:' ,mapcutnow)
+    if (ck_cpcutnow) {
+      let mapcutnow: any = mapdata.filter((o: any) => o.fmdata.cutstatus === 'Y')
+      console.log('cp cuted now:', mapcutnow)
     }
 
     await this.loader.load().then(() => {
@@ -352,8 +353,8 @@ export class HomePage {
         position: this.upos,
         map,
         label: "",
-        icon: 'assets/icon/truck48.png',
-        animation: google.maps.Animation.BOUNCE,
+        icon: 'assets/icon/fm64.png',
+        // animation: google.maps.Animation.BOUNCE,
       });
 
       // add InfoWindow.
@@ -364,26 +365,30 @@ export class HomePage {
       infoWindow.open(map);
 
       // add circle
-      const circle = new google.maps.Circle({
-        center: this.upos,
-        map,
-        strokeWeight: 2,
-        strokeColor: '#FF992C',
-        fillColor: '#F5F8B4',
-        fillOpacity: 0.35,
-        radius: 100,  // รัศมีเป็นเมตร
-      })
+      // const circle = new google.maps.Circle({
+      //   center: this.upos,
+      //   map,
+      //   strokeWeight: 2,
+      //   strokeColor: '#FF992C',
+      //   fillColor: '#F5F8B4',
+      //   fillOpacity: 0.35,
+      //   radius: 100,  // รัศมีเป็นเมตร
+      // })
 
       // Add polygon
       for (let i = 0; i < mapdata.length; i++) {
         let ckcut = mapdata[i].fmdata
         let fillColor = "#7FB5FF";
-        if(ckcut) {
+        let strokeColor = '#FEFEFD'
+        if (ckcut) {
           const cutStatus = mapdata[i].fmdata.cutstatus
           if (cutStatus == 'Y') {
             fillColor = "#E5F708"
+            strokeColor = "#FF0000"
           } else if (cutStatus == 'F') {
             fillColor = "#09FD0C"
+          } else if (cutStatus == 'S') {
+            fillColor = "#ff6666"
           } else {
             fillColor = "#7FB5FF"
           }
@@ -394,7 +399,7 @@ export class HomePage {
         let cppos = mapdata[i].coordinatesCenter
         const caneplot = new google.maps.Polygon({
           paths: triangleCoords,
-          strokeColor: '#FEFEFD',
+          strokeColor: strokeColor,
           strokeWeight: 2,
           fillColor: fillColor,
           fillOpacity: 0.35,
@@ -408,6 +413,24 @@ export class HomePage {
         })
         caneplot.setMap(map);
 
+        // แสดงหมุดสำหรับแปลงที่กำลังตัด
+        if (ckcut) {
+          const cutStatus = mapdata[i].fmdata.cutstatus
+          if (cutStatus == 'Y') {
+            const markercp = new google.maps.Marker({
+              position: mapdata[i].coordinatesCenter,
+              map,
+              label: "แปลงกำลัดตัด",
+              icon: 'assets/icon/truck48.png',
+              animation: google.maps.Animation.BOUNCE,
+            });
+            // Handle marker click
+            markercp.addListener('click', () => {
+              this.openQbookPage(itid)
+            })
+            markercp.setMap(map)
+          }
+        }
       }
     })
 
@@ -417,18 +440,18 @@ export class HomePage {
     console.log('itid in homepage :', itid)
     this.openQbookPage(itid);
 
-  //   let data: any;
-  //   let mapFbdata: any;  // map from firebase
-  //   data = localStorage.getItem('cpgroupsql')
-  //   data = JSON.parse(data)
-  //   if (data) {
-  //     this.cpselect = data.filter((x: { itid: any; }) => x.itid == itid)
-  //     this.cpselect = this.cpselect[0];
-  //     this.itid = itid
-  //     // console.log('cpselect :' ,this.cpselect)
-  //     // this.presentModal(this.cpselect)
-  //     this.openQbookPage(itid);
-  //   }
+    //   let data: any;
+    //   let mapFbdata: any;  // map from firebase
+    //   data = localStorage.getItem('cpgroupsql')
+    //   data = JSON.parse(data)
+    //   if (data) {
+    //     this.cpselect = data.filter((x: { itid: any; }) => x.itid == itid)
+    //     this.cpselect = this.cpselect[0];
+    //     this.itid = itid
+    //     // console.log('cpselect :' ,this.cpselect)
+    //     // this.presentModal(this.cpselect)
+    //     this.openQbookPage(itid);
+    //   }
   }
 
   // เปิดหน้า จองคิวแปลงอ้อย แบบ router
@@ -447,7 +470,6 @@ export class HomePage {
     // let polygon = new google.maps.Polygon([], "#000000", 1, 1, "#336699", 0.3);
     // let isWithinPolygon = polygon.containsLatLng(coordinate);
   }
-
 
   toFirebase() {
     let itid = this.itid
@@ -599,6 +621,9 @@ export class HomePage {
     this.router.navigateByUrl('/faq');
   }
 
+  setOpen(isOpen: boolean) {
+    this.isModalOpen = isOpen;
+  }
   // +++++++++++++++++++++++ ปุ่มตำแหน่งคุณ บนแผนที่
   // const locationButton = document.createElement("button");
   // locationButton.textContent = "ตำแหน่งคุณ";

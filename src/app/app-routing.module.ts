@@ -4,7 +4,7 @@ import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
 const routes: Routes = [
   {
     path: 'home',
-    loadChildren: () => import('./home/home.module').then( m => m.HomePageModule)
+    loadChildren: () => import('./home/home.module').then(m => m.HomePageModule)
   },
   {
     path: '',
@@ -13,23 +13,27 @@ const routes: Routes = [
   },
   {
     path: 'qbook/:itid',
-    loadChildren: () => import('./qbook/qbook.module').then( m => m.QbookPageModule)
+    loadChildren: () => import('./qbook/qbook.module').then(m => m.QbookPageModule)
   },
   {
     path: 'update/:itid',
-    loadChildren: () => import('./update/update.module').then( m => m.UpdatePageModule)
+    loadChildren: () => import('./update/update.module').then(m => m.UpdatePageModule)
   },
   {
     path: 'gps',
-    loadChildren: () => import('./gps/gps.module').then( m => m.GpsPageModule)
+    loadChildren: () => import('./gps/gps.module').then(m => m.GpsPageModule)
   },
   {
     path: 'setting',
-    loadChildren: () => import('./setting/setting.module').then( m => m.SettingPageModule)
+    loadChildren: () => import('./setting/setting.module').then(m => m.SettingPageModule)
   },
   {
     path: 'faq',
-    loadChildren: () => import('./faq/faq.module').then( m => m.FaqPageModule)
+    loadChildren: () => import('./faq/faq.module').then(m => m.FaqPageModule)
+  },
+  {
+    path: 'getqcard/:itid',
+    loadChildren: () => import('./getqcard/getqcard.module').then(m => m.GetqcardPageModule)
   },
 ];
 

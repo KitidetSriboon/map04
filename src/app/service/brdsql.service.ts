@@ -14,6 +14,14 @@ export class BrdsqlService {
 
   constructor(private http: HttpClient,) { }
 
+  // ข้ออมูลหัวหน้ากลุ่มตัด
+  getHeadgroupdata(groupcode: string): Observable<any[]> {
+    const url = this.baseUrlSelect
+      + "s=*&f=CPS6263.dbo.vw_headGroupCutting&w=groupcode='" + groupcode + "'";
+    // console.log('url addLogin:', url)
+    return this.http.get<any[]>(url);
+  }
+
   // ข้อมูลแปลงอ้อยในกลุ่ม
   getCpinGroup(year: string, groupcode: string): Observable<any[]> {
     const url = this.baseUrlSelect
@@ -50,24 +58,10 @@ export class BrdsqlService {
   }
 
   // การเรียกคิว รถสถานะแต่ละคิว
-  async qNow() {
+  async qNow(): Promise<Observable<any[]>> {
     const url = this.baseUrlSelect
       + "s=*&f=dbqbrd.dbo.fnc_qnow('')&w=1=1";
     return this.http.get<any[]>(url);
-
-    // try {
-    //   // const url1 = "https://asia-southeast2-brr-farmluck.cloudfunctions.net/dbcps/select_s_f_w?s=*&f=dbqbrd.dbo.qonline&w=1=1";
-    //   const url2 = "https://asia-southeast2-brr-farmluck.cloudfunctions.net/dbcps/select_s_f_w?s=*&f=dbqbrd.dbo.fnc_qnow('')&w=1=1";
-    //   const results = await Promise.all([
-    //     // fetch(url1),
-    //     fetch(url2)
-    //   ])
-    //   const dataPromises = await results.map(result => result.json())
-    //   const finalData = Promise.all(dataPromises);
-    //   return finalData;
-    // } catch (err) {
-    //   console.log(err)
-    // }
   }
 
   // รอบสำหรับในตัวเลือก
@@ -77,7 +71,7 @@ export class BrdsqlService {
     return this.http.get<any[]>(url)
   }
 
-  // ข้อมูลรถตัด รถคีบ รถบรรทุก หน้าจองคิว
+  // ข้อมูลรถตัด รถคีบ รถบรรทุก หน้าจองคิว แบบทั้งหมด
   async getCarQ(groupcode: string) {
     try {
       const url1 = "https://asia-southeast2-brr-farmluck.cloudfunctions.net/dbcps/select_s_f_w?s=carcutId,groupcode,h_fmname fmname,carReg,wgt_net&f=vw_carcut&w=1=1 order by fmname,carReg"; // ข้อมูลรถตัดทั้งหมด
@@ -96,6 +90,27 @@ export class BrdsqlService {
         fetch(url5),
         fetch(url6),
         // fetch(url7),
+      ])
+      const dataPromises = await results.map(result => result.json())
+      const finalData = Promise.all(dataPromises);
+      return finalData;
+    } catch (err) {
+      console.log(err)
+      return err;
+    }
+  }
+
+  // ข้อมูลรถตัด รถคีบ รถบรรทุก หน้าจองคิว แบบแค่ในกลุ่ม
+  async getCarGroup(groupcode: string) {
+    try {
+      const url1 = this.baseUrlSelect + "s=carcutId,groupcode,h_fmname fmname,carReg&f=vw_carcut&w=groupcode='" + groupcode + "' order by carReg"; // รถตัดในกลุ่ม
+      const url2 = this.baseUrlSelect + "s=truck_no,carduid,fmcode_b1,fmname,groupcode,REGTRUCK&f=dbQBRD.dbo.truckBRR&w=groupcode='" + groupcode + "' and carduid is not null and truck_type <>'X' and supzone between '01' and '10.2' order by regtruck";   // รถบรรทุกในกลุ่ม   
+      const url3 = this.baseUrlSelect + "s=keep_no,owncode_keep fmcode,fmname,groupcode&f=dbQBRD.dbo.Car_keep&w=groupcode='" + groupcode + "' and dataok='1' order by keep_no";  // รถคีบในกลุ่ม
+
+      const results = await Promise.all([
+        fetch(url1),
+        fetch(url2),
+        fetch(url3),
       ])
       const dataPromises = await results.map(result => result.json())
       const finalData = Promise.all(dataPromises);
@@ -142,9 +157,9 @@ export class BrdsqlService {
   }
 
   // ข้อมูลการใช้คิวของแปลงอ้อย
-  getQusedCP(landno: string): Observable<any[]> {
+  getQusedCP(year: any, itid: string): Observable<any[]> {
     let url = this.baseUrlSelect
-      + "s=truck_q,ref_doc1,q_id,regtruck,q_desc,reportdate,wgt_net,ccs_value&f=dbQBRD.dbo.v_qcard6566&w=landno='" + landno + "' and print_q <> '0' order by reportdate,regtruck";
+      + "s=truck_q,ref_doc1,q_id,regtruck,q_desc,reportdate,wgt_net,ccs_value&f=dbQBRD.dbo.v_qcard" + + "6&w=itid='" + itid + "' and print_q <> '0' order by reportdate,regtruck";
     return this.http.get<any[]>(url);
   }
 
