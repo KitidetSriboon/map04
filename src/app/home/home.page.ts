@@ -62,7 +62,10 @@ export class HomePage {
   watchCoordinate: any;
   gpsstatus?: boolean
   isModalOpen = false;
+  isMd_thisapp = false
   headGroupData?: any = [];
+  headGroupList?: any = [];
+  autocomplete: { input: string; } | undefined;
 
   constructor(
     private firebase: FirebaseService,
@@ -91,6 +94,7 @@ export class HomePage {
   ngOnInit() {
     this.getYear()
     this.loadmap()
+    this.getHeadgroup()
   }
 
   ngAfterViewInit() {
@@ -154,6 +158,12 @@ export class HomePage {
       }
 
     });
+
+    // ข้อมูลหัวหน้ากล่ม
+    await this.brdsql.getHeadgroupdata(gc).subscribe((data: any) => {
+      this.headGroupData = data.recordset[0]
+      localStorage.setItem('headgroup', JSON.stringify(this.headGroupData))
+    })
 
     this.closeLoading()
     setTimeout(() => {
@@ -436,6 +446,27 @@ export class HomePage {
 
   }  // End loadmapGroup  
 
+  // ข้อมูลหัวหน้ากลุ่ม
+  async getHeadgroup() {
+    await this.brdsql.getHeadgroupdata(this.groupcode).subscribe((res: any) => {
+      console.log('headgroup: ', res.recordset[0])
+      this.headGroupData = res.recordset[0]
+      localStorage.setItem('headgroup', JSON.stringify(this.headGroupData))
+    })
+  }
+
+  async searchHgname(e: any) {
+    let fmname = e.detail.value
+    await this.brdsql.searchHeadgroup(fmname).subscribe((res: any) => {
+      this.headGroupList = res.recordset
+      // console.log('list hg ...', this.headGroupList)
+    })
+  }
+
+  pushGroupcode(gc: string) {
+    this.groupcode = gc
+  }
+
   getCpSelect(itid: any) {
     console.log('itid in homepage :', itid)
     this.openQbookPage(itid);
@@ -624,6 +655,15 @@ export class HomePage {
   setOpen(isOpen: boolean) {
     this.isModalOpen = isOpen;
   }
+
+  mdOpenThisapp(isOpen: boolean) {
+    this.isMd_thisapp = isOpen;
+  }
+
+
+
+
+
   // +++++++++++++++++++++++ ปุ่มตำแหน่งคุณ บนแผนที่
   // const locationButton = document.createElement("button");
   // locationButton.textContent = "ตำแหน่งคุณ";

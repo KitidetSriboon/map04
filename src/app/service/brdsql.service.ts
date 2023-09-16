@@ -15,10 +15,19 @@ export class BrdsqlService {
   constructor(private http: HttpClient,) { }
 
   // ข้ออมูลหัวหน้ากลุ่มตัด
-  getHeadgroupdata(groupcode: string): Observable<any[]> {
+  getHeadgroupdata(groupcode: any): Observable<any[]> {
     const url = this.baseUrlSelect
       + "s=*&f=CPS6263.dbo.vw_headGroupCutting&w=groupcode='" + groupcode + "'";
     // console.log('url addLogin:', url)
+    return this.http.get<any[]>(url);
+  }
+
+  // ค้นชื่อหัวหน้ากลุ่ม
+  searchHeadgroup(fmname: string) {
+    const url = this.baseUrlSelect
+      + "s=*&f=CPS6263.dbo.[fnc_searchHeadgroupName]('" + fmname + "')&"
+      + "w=1=1 order by fmname"
+    // console.log('url', url)
     return this.http.get<any[]>(url);
   }
 

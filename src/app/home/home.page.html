@@ -7,12 +7,33 @@
           <ion-icon name="map-outline"></ion-icon>
           จองคิว Testmode
         </ion-title>
-        <ion-item color="secondary" line="non" class="divPadding-5">
+
+        <div class="w3-card w3-center" style="width:100%">
+          <img class="w3-border w3-padding" src="{{headGroupData.pic_url}}" alt="brd" style="width:100px">
+          <div class="w3-container">
+            <ion-text class="txtLarge"><b>{{ headGroupData.fmname }}</b></ion-text>
+            <p>กลุ่ม {{ groupcode }}</p>
+          </div>
+        </div>
+
+        <!-- <div class="w3-card-4 w3-dark-grey" style="width:100%">
+          <div class="w3-container w3-center">
+            <h3>กลุ่ม {{ groupcode }}</h3>
+            <img src="{{headGroupData.pic_url}}" alt="brd" style="width:50%">
+            <h5>{{ headGroupData.fmname }}</h5>
+            <div class="w3-section">
+              <button class="w3-button w3-green">Accept</button>
+              <button class="w3-button w3-red">Decline</button>
+            </div>
+          </div>
+        </div> -->
+        <!-- <ion-item color="secondary" line="non" class="divPadding-5">
           <ion-avatar slot="start">
-            <img alt="Silhouette of a person's head" src="https://ionicframework.com/docs/img/demos/avatar.svg" />
+            <img alt="brr" src="{{headGroupData.pic_url}}" />
           </ion-avatar>
           <ion-label> กลุ่ม {{ groupcode }} </ion-label>
-        </ion-item>
+          <p>{{ headGroupData.fmname }} </p>
+        </ion-item> -->
       </ion-toolbar>
     </ion-header>
     <ion-content class="ion-padding">
@@ -29,18 +50,34 @@
 
       </form>
 
+      <div style="margin-top: 15px;">
+        <ion-input (ionChange)="searchHgname($event)" label="ชื่อ/นามสกุล" label-placement="floating" fill="outline"
+          placeholder="หน.กลุ่ม">
+        </ion-input>
+        <!-- <ion-button expand="full" fill="outline" shape="round" style="margin-top: 10px;">
+          <ion-icon name="search-outline"></ion-icon>
+          ค้นหาชื่อ
+        </ion-button> -->
+      </div>
+      <ion-item (click)="pushGroupcode(i.groupcode)" *ngFor="let i of headGroupList" style="margin-top: 5px;">
+        <ion-avatar slot="start">
+          <img alt="brd" src="{{i.pic_url}}" />
+        </ion-avatar>
+        <ion-label class="txtSmall"> {{ i.fmname }} </ion-label>
+      </ion-item>
+
     </ion-content>
 
   </ion-menu>
 
   <!-- Right-Side Menu -->
-  <ion-menu class="small-menu" side="end" menuId="user" content-id="main-content">
+  <ion-menu side="end" menuId="user" content-id="main-content">
     <ion-header class="ion-text-center">
       <ion-toolbar class="divPadding-10" color="secondary">
         <ion-title> การตั้งค่า </ion-title>
         <ion-item color="secondary" line="non" class="divCenter">
           <ion-avatar slot="start">
-            <img alt="brr" src="assets/icon/fm64.png" />
+            <img alt="brr" [src]="headGroupData.pic_url" />
           </ion-avatar>
           <ion-label class=""> กลุ่ม {{ groupcode }} </ion-label>
         </ion-item>
@@ -130,6 +167,11 @@
                 <ion-icon name="help-outline"></ion-icon> ทำไมต้องเปิดแปลงที่แปลง
               </ion-label>
             </ion-item>
+            <ion-item lines="none" button (click)="mdOpenThisapp(true)">
+              <ion-label>
+                <ion-icon name="help-outline"></ion-icon> เวอร์ชั่นนี่ทำอะไรได้บ้าง
+              </ion-label>
+            </ion-item>
           </div>
         </ion-accordion>
       </ion-accordion-group>
@@ -162,6 +204,37 @@
           </ion-content>
         </ng-template>
       </ion-modal>
+
+      <ion-modal [isOpen]="isMd_thisapp">
+        <ng-template>
+          <ion-header>
+            <ion-toolbar>
+              <ion-title class="divMg-5">
+                <ion-avatar slot="start">
+                  <img alt="brr" src="assets/icon/fm64.png" />
+                </ion-avatar> เวอร์ชั่นทดลอง
+              </ion-title>
+              <ion-buttons slot="end">
+                <ion-button (click)="mdOpenThisapp(false)">ปิด</ion-button>
+              </ion-buttons>
+            </ion-toolbar>
+          </ion-header>
+          <ion-content class="ion-padding">
+            <div class="w3-panel w3-center w3-leftbar w3-sand">
+              <p><i class="gfSriracha">
+                  <!-- <span style="font-size:50px;line-height:0.6em;opacity:0.2">&#10004;</span> -->
+                  <span style="font-size:40px;line-height:0.6em;opacity:0.5">
+                    <img alt="brr" src="assets/img/brr-md01.png" style="width: 50%;" />
+                  </span>
+                  ..ตอนนี้ เป็นแค่การให้ลองทดสอบ การเปิดแปลง / ปิดแปลง ที่แปลงอ้อย โดยใช้ตำแหน่ง GPS ของอุปกรณ์ เท่านั้น
+                  ส่วน การจองคิว ยืมคิว โยกคิว จะเป็นเวอร์ชั่นถัดไป ครับ... </i></p>
+              <p>brd-BRR</p>
+            </div>
+          </ion-content>
+        </ng-template>
+      </ion-modal>
+
+
 
     </ion-content>
   </ion-menu>

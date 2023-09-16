@@ -306,8 +306,8 @@ export class QbookPage implements OnInit {
     let upos = this.upos
     let cplot = new google.maps.Polygon({ paths: cppolygon });
     let isWithinPolygon = google.maps.geometry.poly.containsLocation(upos, cplot)
-    // this.isInCp = isWithinPolygon
-    this.isInCp = true  // สำหรับใช้ทดสอบ
+    this.isInCp = isWithinPolygon
+    // this.isInCp = true  // สำหรับใช้ทดสอบ
     console.log('isWithinPolygon :', isWithinPolygon);
     console.log('isInCp :', this.isInCp);
   }

@@ -1,9 +1,9 @@
 <ion-header [translucent]="true">
   <ion-toolbar color="primary">
-    <ion-title>การจัดคิว ปี {{ yearTh }}</ion-title>
     <ion-buttons slot="start">
-      <ion-back-button></ion-back-button>
+      <ion-back-button defaultHref="/"></ion-back-button>
     </ion-buttons>
+    <ion-title>การจัดคิว ปี {{ yearTh }}</ion-title>
   </ion-toolbar>
 </ion-header>
 
@@ -31,7 +31,7 @@
       </ion-text>
     </ion-label>
   </ion-item>
-  <ion-button (click)="ckFmdata()" class="divMg-5" shape="round" size="small">
+  <!-- <ion-button (click)="ckFmdata()" class="divMg-5" shape="round" size="small">
     แปลงบันทึกกิจกรรมแล้ว
-  </ion-button>
+  </ion-button> -->
 </ion-content>

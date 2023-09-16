@@ -1,4 +1,4 @@
-package io.ionic.starter;
+package com.buriramsugar.brd.map04;
 
 import com.getcapacitor.BridgeActivity;
 
